@@ -28,6 +28,8 @@ repositories {
 
 	// CCA
 	maven { url 'https://maven.ladysnake.org/releases' }
+
+	maven { url 'https://jitpack.io' }
 }
 
 loom {
@@ -77,6 +79,8 @@ dependencies {
 	include(modImplementation("me.lucko:fabric-permissions-api:${property('deps.permissions_api')}"))
 	modImplementation include("xyz.nucleoid:fantasy:${property('deps.fantasy')}")
 	modImplementation include("eu.pb4:map-canvas-api:${property('deps.map_api')}")
+
+	implementation include("com.github.Benonardo:vanilla-mocha-doom:-SNAPSHOT")
 }
 
 processResources {
