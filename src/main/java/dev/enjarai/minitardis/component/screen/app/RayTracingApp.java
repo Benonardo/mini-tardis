@@ -25,10 +25,12 @@ public class RayTracingApp implements ScreenApp {
 
     private static class View implements AppView {
 
-        private static final Vector3fc RAY_ORIGIN = new Vector3f(0.0f, 0.0f, -2.0f);
+        private static final Vector3fc RAY_ORIGIN = new Vector3f(0.0f, 0.0f, 1.0f);
         private final Vector3f rayDirection = new Vector3f();
         private final Vector4f pixelColor = new Vector4f();
         private final Vector3f hitPoint = new Vector3f();
+        private final Vector3f normal = new Vector3f();
+        private final Vector3f lightDir = new Vector3f();
 
         @Override
         public void draw(ConsoleScreenBlockEntity blockEntity, DrawableCanvas canvas) {
@@ -36,7 +38,7 @@ public class RayTracingApp implements ScreenApp {
             for (var x = 0; x < 128; x++) {
                 for (var y = 0; y < 128; y++) {
                     // math
-                    coord.set((float) x / 128 * 2.0f - 1.0f, (float) y / 128 * 2.0f - 1.0f);
+                    coord.set((float) x / 128 * 2.0f - 1.0f, (float) (128 - y) / 128 * 2.0f - 1.0f);
                     perPixel(coord);
                     var color = ColorHelper.Argb.getArgb((int) (pixelColor.w * 255), (int) (pixelColor.x * 255), (int) (pixelColor.y * 255), (int) (pixelColor.z * 255));
                     canvas.set(x, y - (128 - 96) / 2, CanvasUtils.findClosestColorARGB(color));
@@ -62,8 +64,13 @@ public class RayTracingApp implements ScreenApp {
             var closestT = (-b - Math.sqrt(discriminant)) / (2.0f * a);
 
             rayDirection.mul(closestT, hitPoint).add(RAY_ORIGIN);
+            hitPoint.normalize(normal);
 
-            pixelColor.set(hitPoint.x, hitPoint.y, hitPoint.z, 1.0f);
+            lightDir.set(-1.0f, -1.0f, -1.0f).normalize();
+            var d = Math.max(normal.dot(lightDir.negate()), 0.0f);
+
+            pixelColor.set(1.0f, 0.0f, 1.0f, 1.0f).mul(d);
+            pixelColor.w = 1.0f;
         }
 
         @Override
