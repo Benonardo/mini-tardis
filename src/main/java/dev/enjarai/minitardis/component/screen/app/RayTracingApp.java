@@ -3,6 +3,7 @@ package dev.enjarai.minitardis.component.screen.app;
 import com.mojang.serialization.Codec;
 import dev.enjarai.minitardis.MiniTardis;
 import dev.enjarai.minitardis.block.console.ConsoleScreenBlockEntity;
+import dev.enjarai.minitardis.canvas.ModCanvasUtils;
 import dev.enjarai.minitardis.component.TardisControl;
 import eu.pb4.mapcanvas.api.core.DrawableCanvas;
 import eu.pb4.mapcanvas.api.utils.CanvasUtils;
@@ -25,15 +26,18 @@ public class RayTracingApp implements ScreenApp {
 
     private static class View implements AppView {
 
-        private static final Vector3fc RAY_ORIGIN = new Vector3f(0.0f, 0.0f, 1.0f);
+        private final Vector3f rayOrigin = new Vector3f();
         private final Vector3f rayDirection = new Vector3f();
         private final Vector4f pixelColor = new Vector4f();
         private final Vector3f hitPoint = new Vector3f();
         private final Vector3f normal = new Vector3f();
         private final Vector3f lightDir = new Vector3f();
+        private int degrees = 0;
 
         @Override
         public void draw(ConsoleScreenBlockEntity blockEntity, DrawableCanvas canvas) {
+            degrees++;
+            rayOrigin.set(Math.sin(Math.toRadians(degrees)), 0.0f, Math.cos(Math.toRadians(degrees)));
             var coord = new Vector2f();
             for (var x = 0; x < 128; x++) {
                 for (var y = 0; y < 128; y++) {
@@ -51,8 +55,8 @@ public class RayTracingApp implements ScreenApp {
             var radius = 0.5f;
 
             var a = rayDirection.dot(rayDirection);
-            var b = 2.0f * RAY_ORIGIN.dot(rayDirection);
-            var c = RAY_ORIGIN.dot(RAY_ORIGIN) - radius * radius;
+            var b = 2.0f * rayOrigin.dot(rayDirection);
+            var c = rayOrigin.dot(rayOrigin) - radius * radius;
 
             var discriminant = b * b - 4.0f * a * c;
 
@@ -63,7 +67,7 @@ public class RayTracingApp implements ScreenApp {
 
             var closestT = (-b - Math.sqrt(discriminant)) / (2.0f * a);
 
-            rayDirection.mul(closestT, hitPoint).add(RAY_ORIGIN);
+            rayDirection.mul(closestT, hitPoint).add(rayOrigin);
             hitPoint.normalize(normal);
 
             lightDir.set(-1.0f, -1.0f, -1.0f).normalize();
@@ -81,7 +85,7 @@ public class RayTracingApp implements ScreenApp {
 
     @Override
     public void drawIcon(TardisControl controls, ConsoleScreenBlockEntity blockEntity, DrawableCanvas canvas) {
-
+        CanvasUtils.draw(canvas, 0, 0, ModCanvasUtils.RAY_TRACING_APP);
     }
 
     @Override
